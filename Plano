@@ -1,0 +1,11 @@
+- Criar serviço genérico com nome do serviço fácil de identificar [SERVICE_NAME] OK
+- Adicionar todas as estruturas comuns para um bom serviço Java OK
+- Adicionar estrutura Docker para subir todas as aplicações simultaneamente e com um único comando
+- Adicionar Kafka para comunicação entre os serviços
+- Adicionar Eventuate Tram
+- Criar duas cópias
+- Adicionar implementação básica de lógica ajustada
+- Adicionar implementação de ações de recuperação de falhas
+- Adicionar cenários de erro de forma fácil de selecionar
+- Adicionar monitoramento/captura de informações
+- Criar lógica de testes
