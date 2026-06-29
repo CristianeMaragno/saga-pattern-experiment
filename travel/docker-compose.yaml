@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -14,10 +12,29 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U travel_user"]
+      test: ["CMD-SHELL", "pg_isready -U travel_user -d travel_db"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - travel-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: travel-app
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: travel_db
+      DB_USER: travel_user
+      DB_PASSWORD: travel_password
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - travel-network
 

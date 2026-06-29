@@ -1,30 +1,47 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: travel-db
+    container_name: booking-db
     environment:
-      POSTGRES_DB: travel_db
-      POSTGRES_USER: travel_user
-      POSTGRES_PASSWORD: travel_password
+      POSTGRES_DB: booking_db
+      POSTGRES_USER: booking_user
+      POSTGRES_PASSWORD: booking_password
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U travel_user"]
+      test: ["CMD-SHELL", "pg_isready -U booking_user -d booking_db"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - travel-network
+      - booking-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booking-app
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: booking_db
+      DB_USER: booking_user
+      DB_PASSWORD: booking_password
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - booking-network
 
   # PgAdmin para gerenciar o banco (opcional)
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: travel-pgadmin
+    container_name: booking-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -33,11 +50,11 @@ services:
     depends_on:
       - postgres
     networks:
-      - travel-network
+      - booking-network
 
 volumes:
   postgres_data:
 
 networks:
-  travel-network:
+  booking-network:
     driver: bridge

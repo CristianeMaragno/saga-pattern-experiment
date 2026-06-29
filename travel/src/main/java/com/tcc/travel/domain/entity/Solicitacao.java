@@ -1,14 +1,14 @@
 package com.tcc.travel.domain.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * Entidade de domínio que representa uma Solicitação de Viagem.
@@ -70,9 +70,21 @@ public class Solicitacao {
     }
 
     /**
+     * Confirma a viagem (T7 do experimento).
+     * Apenas solicitações em RASCUNHO podem ser confirmadas.
+     */
+    public void confirmar() {
+        if (this.status != StatusSolicitacao.APROVADA) {
+            throw new IllegalStateException("Apenas solicitações em APROVADA podem ser confirmadas");
+        }
+        this.status = StatusSolicitacao.CONFIRMADO;
+        this.dataAtualizacao = LocalDateTime.now();
+    }
+
+    /**
      * Enum dos possíveis status de uma solicitação.
      */
     public enum StatusSolicitacao {
-        PENDENTE, APROVADA, REJEITADA, CANCELADA
+        RASCUNHO, PENDENTE, APROVADA, REJEITADA, CONFIRMADO, CANCELADA
     }
 }

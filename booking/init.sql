@@ -1,21 +1,17 @@
--- Script de inicialização do banco de dados PostgreSQL para Travel API
+-- Script de inicialização do banco de dados PostgreSQL para Booking API
 
--- Criação da tabela de solicitações de viagem
-CREATE TABLE IF NOT EXISTS solicitacoes (
+-- Criação da tabela de holds temporários de reserva (T3: voo, T4: hotel)
+CREATE TABLE IF NOT EXISTS holds (
     id BIGSERIAL PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
-    destino VARCHAR(255) NOT NULL,
-    data_ida DATE NOT NULL,
-    data_volta DATE,
-    motivo TEXT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE' CHECK (status IN ('PENDENTE', 'APROVADA', 'REJEITADA', 'CANCELADA')),
-    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    type VARCHAR(20) NOT NULL CHECK (type IN ('FLIGHT', 'HOTEL')),
+    reference VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL
 );
 
 -- Dados de exemplo para testes
-INSERT INTO solicitacoes (usuario_id, destino, data_ida, data_volta, motivo, status) VALUES
-    (1, 'São Paulo', CURRENT_DATE + INTERVAL '10 days', CURRENT_DATE + INTERVAL '15 days', 'Reunião com cliente', 'PENDENTE'),
-    (1, 'Rio de Janeiro', CURRENT_DATE + INTERVAL '20 days', CURRENT_DATE + INTERVAL '25 days', 'Conferência', 'APROVADA'),
-    (2, 'Belo Horizonte', CURRENT_DATE + INTERVAL '5 days', CURRENT_DATE + INTERVAL '8 days', 'Treinamento', 'PENDENTE')
+INSERT INTO holds (type, reference, created_at, expires_at) VALUES
+    ('FLIGHT', 'solicitacao:1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '24 hours'),
+    ('FLIGHT', 'solicitacao:2', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '72 hours'),
+    ('HOTEL', 'solicitacao:1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '48 hours')
 ON CONFLICT DO NOTHING;

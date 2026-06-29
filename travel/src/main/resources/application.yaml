@@ -1,23 +1,25 @@
 spring:
   application:
     name: travel-api
-  
-  # Desabilitar autoconfigure do DataSource (usando mock repository)
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-  
-  # Inicialização de dados desabilitada (usando mock repository)
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:travel_db}
+    username: ${DB_USER:travel_user}
+    password: ${DB_PASSWORD:travel_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Esquema e dados de exemplo já são criados pelo init.sql do container postgres
   sql:
     init:
       mode: never
-  
-  # Flag para ativar/desativar mock repository
-  jpa:
-    mock:
-      enabled: true
 
 # Configuração do Actuator
 management:

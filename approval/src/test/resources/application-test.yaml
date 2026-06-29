@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: approval-api
+
+  # Desabilitar autoconfigure do DataSource (usando mock repository)
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+  # Inicialização de dados desabilitada (usando mock repository)
+  sql:
+    init:
+      mode: never
+
+  # Flag para ativar/desativar mock repository
+  jpa:
+    mock:
+      enabled: true
+
+# Configuração do Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

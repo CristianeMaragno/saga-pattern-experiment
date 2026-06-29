@@ -1,6 +1,7 @@
 package com.tcc.travel.application.usecase;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,14 @@ public class SolicitacaoUseCase {
 
         // Persiste a solicitação
         return solicitacaoRepository.salvar(solicitacao);
+    }
+
+    /**
+     * Lista todas as solicitações de viagem.
+     *
+     * @return lista de solicitações
+     */
+    public List<Solicitacao> listarTodas() {
+        return solicitacaoRepository.obterTodas();
     }
 }

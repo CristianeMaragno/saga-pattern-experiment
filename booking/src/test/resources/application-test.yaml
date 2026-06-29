@@ -1,6 +1,6 @@
 spring:
   application:
-    name: travel-api
+    name: booking-api
   
   # Desabilitar autoconfigure do DataSource (usando mock repository)
   autoconfigure:

@@ -62,6 +62,6 @@ public class SolicitacaoJpaEntity {
      * Enum dos possíveis status de uma solicitação.
      */
     public enum StatusSolicitacao {
-        PENDENTE, APROVADA, REJEITADA, CANCELADA
+        RASCUNHO, PENDENTE, APROVADA, REJEITADA, CONFIRMADO, CANCELADA
     }
 }

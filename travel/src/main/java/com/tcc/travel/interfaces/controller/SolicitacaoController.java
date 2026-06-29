@@ -1,5 +1,7 @@
 package com.tcc.travel.interfaces.controller;
 
+import java.util.List;
+
 import com.tcc.travel.application.dto.CreateSolicitacaoRequestDTO;
 import com.tcc.travel.application.dto.SolicitacaoResponseDTO;
 import com.tcc.travel.application.usecase.SolicitacaoUseCase;
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,5 +49,18 @@ public class SolicitacaoController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(SolicitacaoResponseDTO.fromDomain(solicitacao));
+    }
+
+    /**
+     * GET /api/v1/solicitacoes - Lista todas as solicitações de viagem
+     */
+    @GetMapping
+    public ResponseEntity<List<SolicitacaoResponseDTO>> listar() {
+        List<SolicitacaoResponseDTO> solicitacoes = solicitacaoUseCase.listarTodas()
+                .stream()
+                .map(SolicitacaoResponseDTO::fromDomain)
+                .toList();
+
+        return ResponseEntity.ok(solicitacoes);
     }
 }
