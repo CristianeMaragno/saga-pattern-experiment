@@ -32,4 +32,12 @@ public interface AprovacaoRepository {
      * @return lista de todas as aprovações
      */
     List<Aprovacao> obterTodas();
+
+    /**
+     * Busca a aprovação de uma instância de saga.
+     *
+     * @param solicitacaoId identificador de correlação da saga
+     * @return a aprovação encontrada ou vazio se não existir
+     */
+    Optional<Aprovacao> obterPorSolicitacaoId(Long solicitacaoId);
 }

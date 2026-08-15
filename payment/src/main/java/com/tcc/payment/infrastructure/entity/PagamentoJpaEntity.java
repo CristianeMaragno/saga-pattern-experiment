@@ -33,6 +33,9 @@ public class PagamentoJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "solicitacao_id", nullable = false)
+    private Long solicitacaoId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 20)
     private TipoPagamento tipo;

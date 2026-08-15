@@ -22,8 +22,12 @@ public class HoldMapper {
 
         return Hold.builder()
                 .id(jpaEntity.getId())
+                .solicitacaoId(jpaEntity.getSolicitacaoId())
                 .type(jpaEntity.getType() != null ?
                         Hold.HoldType.valueOf(jpaEntity.getType().name())
+                        : null)
+                .status(jpaEntity.getStatus() != null ?
+                        Hold.HoldStatus.valueOf(jpaEntity.getStatus().name())
                         : null)
                 .reference(jpaEntity.getReference())
                 .createdAt(jpaEntity.getCreatedAt())
@@ -41,8 +45,12 @@ public class HoldMapper {
 
         return HoldJpaEntity.builder()
                 .id(domain.getId())
+                .solicitacaoId(domain.getSolicitacaoId())
                 .type(domain.getType() != null ?
                         HoldJpaEntity.HoldType.valueOf(domain.getType().name())
+                        : null)
+                .status(domain.getStatus() != null ?
+                        HoldJpaEntity.HoldStatus.valueOf(domain.getStatus().name())
                         : null)
                 .reference(domain.getReference())
                 .createdAt(domain.getCreatedAt())

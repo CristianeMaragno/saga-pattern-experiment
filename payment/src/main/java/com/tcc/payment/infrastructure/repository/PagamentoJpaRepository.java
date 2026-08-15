@@ -11,4 +11,7 @@ import com.tcc.payment.infrastructure.entity.PagamentoJpaEntity;
  */
 @Repository
 public interface PagamentoJpaRepository extends JpaRepository<PagamentoJpaEntity, Long> {
+
+    java.util.Optional<PagamentoJpaEntity> findBySolicitacaoIdAndTipo(Long solicitacaoId,
+                                                                     PagamentoJpaEntity.TipoPagamento tipo);
 }

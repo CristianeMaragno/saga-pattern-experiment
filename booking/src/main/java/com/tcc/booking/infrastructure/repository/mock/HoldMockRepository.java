@@ -42,6 +42,13 @@ public class HoldMockRepository implements HoldRepository {
     }
 
     @Override
+    public Optional<Hold> obterPorSolicitacaoIdETipo(Long solicitacaoId, Hold.HoldType type) {
+        return database.values().stream()
+                .filter(h -> solicitacaoId.equals(h.getSolicitacaoId()) && h.getType() == type)
+                .findFirst();
+    }
+
+    @Override
     public Optional<Hold> obterPorId(Long id) {
         log.info("[MOCK] Buscando hold com ID: {}", id);
         return Optional.ofNullable(database.get(id));

@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<eventuate.tram.version>0.37.0.RELEASE</eventuate.tram.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -68,11 +69,46 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Eventuate Tram: outbox transacional + mensageria da saga coreografada.
+		     A versão 0.37.0.RELEASE é construída sobre Spring Boot 3 / Jakarta EE,
+		     confirmado por spike com esta mesma versão do Spring Boot. -->
+		<dependency>
+			<groupId>io.eventuate.tram.core</groupId>
+			<artifactId>eventuate-tram-spring-jdbc-kafka</artifactId>
+			<version>${eventuate.tram.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.eventuate.tram.core</groupId>
+			<artifactId>eventuate-tram-spring-events</artifactId>
+			<version>${eventuate.tram.version}</version>
+		</dependency>
+
+		<!-- Registrador Prometheus exigido pelo endpoint já exposto no application.yaml -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Mensageria em memória: permite exercitar a coreografia da saga em
+		     testes de integração sem subir Kafka nem Postgres. -->
+		<dependency>
+			<groupId>io.eventuate.tram.core</groupId>
+			<artifactId>eventuate-tram-spring-in-memory</artifactId>
+			<version>${eventuate.tram.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -38,6 +38,13 @@ public class PagamentoRepositoryImpl implements PagamentoRepository {
     }
 
     @Override
+    public Optional<Pagamento> obterPorSolicitacaoIdETipo(Long solicitacaoId, Pagamento.TipoPagamento tipo) {
+        return jpaRepository.findBySolicitacaoIdAndTipo(solicitacaoId,
+                        PagamentoJpaEntity.TipoPagamento.valueOf(tipo.name()))
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<Pagamento> obterPorId(Long id) {
         log.info("Buscando pagamento com ID: {}", id);
         return jpaRepository.findById(id)

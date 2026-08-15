@@ -25,4 +25,13 @@ public interface HoldRepository {
      * @return o hold, ou vazio se não encontrado
      */
     Optional<Hold> obterPorId(Long id);
+
+    /**
+     * Busca o hold de um tipo específico dentro de uma instância de saga.
+     *
+     * @param solicitacaoId identificador de correlação da saga
+     * @param type tipo do hold (voo ou hotel)
+     * @return o hold, ou vazio se não encontrado
+     */
+    Optional<Hold> obterPorSolicitacaoIdETipo(Long solicitacaoId, Hold.HoldType type);
 }

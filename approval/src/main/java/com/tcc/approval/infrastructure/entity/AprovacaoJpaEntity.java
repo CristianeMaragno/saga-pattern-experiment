@@ -32,6 +32,9 @@ public class AprovacaoJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "solicitacao_id", nullable = false, unique = true)
+    private Long solicitacaoId;
+
     @Column(name = "solicitante_id", nullable = false)
     private Long solicitanteId;
 

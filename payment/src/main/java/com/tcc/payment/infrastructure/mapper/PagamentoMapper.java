@@ -22,6 +22,7 @@ public class PagamentoMapper {
 
         return Pagamento.builder()
                 .id(jpaEntity.getId())
+                .solicitacaoId(jpaEntity.getSolicitacaoId())
                 .tipo(jpaEntity.getTipo() != null ?
                         Pagamento.TipoPagamento.valueOf(jpaEntity.getTipo().name())
                         : null)
@@ -45,6 +46,7 @@ public class PagamentoMapper {
 
         return PagamentoJpaEntity.builder()
                 .id(domain.getId())
+                .solicitacaoId(domain.getSolicitacaoId())
                 .tipo(domain.getTipo() != null ?
                         PagamentoJpaEntity.TipoPagamento.valueOf(domain.getTipo().name())
                         : null)

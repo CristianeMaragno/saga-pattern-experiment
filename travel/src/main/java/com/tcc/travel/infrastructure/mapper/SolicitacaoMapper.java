@@ -5,7 +5,7 @@ import com.tcc.travel.infrastructure.entity.SolicitacaoJpaEntity;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper para converter entre a entidade de domínio (Solicitacao) 
+ * Mapper para converter entre a entidade de domínio (Solicitacao)
  * e a entidade JPA (SolicitacaoJpaEntity).
  */
 @Component
@@ -29,6 +29,14 @@ public class SolicitacaoMapper {
                 .status(jpaEntity.getStatus() != null ?
                         Solicitacao.StatusSolicitacao.valueOf(jpaEntity.getStatus().name())
                         : null)
+                .resultadoSaga(jpaEntity.getResultadoSaga() != null ?
+                        Solicitacao.ResultadoSaga.valueOf(jpaEntity.getResultadoSaga().name())
+                        : null)
+                .etapaFalha(jpaEntity.getEtapaFalha())
+                .valorVoo(jpaEntity.getValorVoo())
+                .valorHotel(jpaEntity.getValorHotel())
+                .pagamentoVooConfirmado(jpaEntity.isPagamentoVooConfirmado())
+                .pagamentoHotelConfirmado(jpaEntity.isPagamentoHotelConfirmado())
                 .dataCriacao(jpaEntity.getDataCriacao())
                 .dataAtualizacao(jpaEntity.getDataAtualizacao())
                 .build();
@@ -52,6 +60,14 @@ public class SolicitacaoMapper {
                 .status(domain.getStatus() != null ?
                         SolicitacaoJpaEntity.StatusSolicitacao.valueOf(domain.getStatus().name())
                         : null)
+                .resultadoSaga(domain.getResultadoSaga() != null ?
+                        SolicitacaoJpaEntity.ResultadoSaga.valueOf(domain.getResultadoSaga().name())
+                        : null)
+                .etapaFalha(domain.getEtapaFalha())
+                .valorVoo(domain.getValorVoo())
+                .valorHotel(domain.getValorHotel())
+                .pagamentoVooConfirmado(domain.isPagamentoVooConfirmado())
+                .pagamentoHotelConfirmado(domain.isPagamentoHotelConfirmado())
                 .dataCriacao(domain.getDataCriacao())
                 .dataAtualizacao(domain.getDataAtualizacao())
                 .build();

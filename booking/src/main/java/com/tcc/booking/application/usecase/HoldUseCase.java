@@ -24,9 +24,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class HoldUseCase {
 
-    private static final int FLIGHT_MIN_HOURS = 24;
-    private static final int FLIGHT_MAX_HOURS = 72;
-    private static final int HOTEL_DEFAULT_HOURS = 48;
+    public static final int FLIGHT_MIN_HOURS = 24;
+    public static final int FLIGHT_MAX_HOURS = 72;
+    public static final int HOTEL_DEFAULT_HOURS = 48;
 
     private final HoldRepository holdRepository;
 
@@ -40,7 +40,7 @@ public class HoldUseCase {
             throw new BusinessException(
                     "Duração do hold de voo deve estar entre " + FLIGHT_MIN_HOURS + "h e " + FLIGHT_MAX_HOURS + "h");
         }
-        return criarHold(Hold.HoldType.FLIGHT, request.getReference(), hours);
+        return criarHold(request.getSolicitacaoId(), Hold.HoldType.FLIGHT, request.getReference(), hours);
     }
 
     /**
@@ -49,7 +49,7 @@ public class HoldUseCase {
      */
     public Hold criarHoldHotel(CreateHoldRequestDTO request) {
         int hours = request.getDurationHours() != null ? request.getDurationHours() : HOTEL_DEFAULT_HOURS;
-        return criarHold(Hold.HoldType.HOTEL, request.getReference(), hours);
+        return criarHold(request.getSolicitacaoId(), Hold.HoldType.HOTEL, request.getReference(), hours);
     }
 
     /**
@@ -60,11 +60,17 @@ public class HoldUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Hold não encontrado: " + id));
     }
 
-    private Hold criarHold(Hold.HoldType type, String reference, int hours) {
+    /**
+     * Cria o hold em estado ATIVO, com o prazo a partir do qual a restrição
+     * temporal da saga passa a valer.
+     */
+    public Hold criarHold(Long solicitacaoId, Hold.HoldType type, String reference, int hours) {
         Instant now = Instant.now();
         Hold hold = Hold.builder()
+                .solicitacaoId(solicitacaoId)
                 .type(type)
                 .reference(reference)
+                .status(Hold.HoldStatus.ATIVO)
                 .createdAt(now)
                 .expiresAt(now.plus(hours, ChronoUnit.HOURS))
                 .build();

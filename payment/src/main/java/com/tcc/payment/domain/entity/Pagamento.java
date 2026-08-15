@@ -24,6 +24,8 @@ import lombok.Setter;
 public class Pagamento {
 
     private Long id;
+    /** Identificador de correlação da instância de saga. */
+    private Long solicitacaoId;
     private TipoPagamento tipo;
     private String referencia;
     private BigDecimal valor;
@@ -35,6 +37,9 @@ public class Pagamento {
      * Valida regras de negócio para criação do pagamento.
      */
     public void validar() {
+        if (solicitacaoId == null || solicitacaoId <= 0) {
+            throw new IllegalArgumentException("ID da solicitação é obrigatório");
+        }
         if (referencia == null || referencia.isBlank()) {
             throw new IllegalArgumentException("Referência é obrigatória");
         }
@@ -63,6 +68,27 @@ public class Pagamento {
         }
         this.status = StatusPagamento.FALHOU;
         this.dataAtualizacao = LocalDateTime.now();
+    }
+
+    /**
+     * Compensação de T5/T6: estorna o pagamento.
+     *
+     * Diferente das compensações de T1–T4, esta acontece depois do ponto de
+     * pivô e é a que pode ter custo financeiro (multas) no domínio real.
+     * Idempotente, porque o evento de compensação pode ser reentregue.
+     *
+     * @return {@code true} se este chamado de fato cancelou o pagamento
+     */
+    public boolean cancelar() {
+        // Um pagamento recusado não tem o que estornar, e sobrescrevê-lo com
+        // CANCELADO apagaria justamente o registro da recusa — que é o dado que
+        // distingue "a saga foi desfeita" de "o pagamento foi negado".
+        if (this.status == StatusPagamento.CANCELADO || this.status == StatusPagamento.FALHOU) {
+            return false;
+        }
+        this.status = StatusPagamento.CANCELADO;
+        this.dataAtualizacao = LocalDateTime.now();
+        return true;
     }
 
     /**

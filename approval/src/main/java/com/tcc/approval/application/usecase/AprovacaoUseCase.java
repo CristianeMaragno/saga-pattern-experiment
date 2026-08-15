@@ -27,6 +27,7 @@ public class AprovacaoUseCase {
      */
     public Aprovacao criarAprovacao(CreateAprovacaoRequestDTO request) {
         Aprovacao aprovacao = Aprovacao.builder()
+                .solicitacaoId(request.getSolicitacaoId())
                 .solicitanteId(request.getSolicitanteId())
                 .responsavelId(request.getResponsavelId())
                 .tempoLimite(request.getTempoLimite())

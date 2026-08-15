@@ -1,28 +1,58 @@
 spring:
   application:
     name: booking-api
-  
-  # Desabilitar autoconfigure do DataSource (usando mock repository)
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-  
-  # Inicialização de dados desabilitada (usando mock repository)
+
+  # Banco em memória: os testes exercitam a persistência real (mapeamentos,
+  # constraints, transações) sem depender de Docker. O schema é gerado pelo
+  # próprio Hibernate, então não há init.sql a manter em dois lugares.
+  datasource:
+    url: jdbc:h2:mem:booking;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    # Repositório real contra H2; o mock existe para desenvolvimento sem banco.
+    mock:
+      enabled: false
+
   sql:
     init:
       mode: never
-  
-  # Flag para ativar/desativar mock repository
-  jpa:
-    mock:
-      enabled: true
 
-# Configuração do Actuator
+# Sem Kafka nos testes: o transporte é substituído por mensageria em memória
+# (ver TestMessagingConfiguration), mas a propriedade precisa existir porque a
+# configuração do Eventuate a exige sem valor padrão.
+eventuatelocal:
+  kafka:
+    bootstrap:
+      servers: localhost:9092
+
+experimento:
+  run-id: teste
+  estrategia: BACKWARD
+  cenario-falha: NONE
+  posicao-falha: T4
+  limite-tentativas: 3
+  # Backoff curto para os testes não ficarem lentos; a lógica é a mesma.
+  backoff-inicial-ms: 20
+  backoff-maximo-ms: 100
+  falhas-temporarias: 2
+  atraso-decisao-aprovacao-segundos: 0
+  motor:
+    intervalo-ms: 50
+    tamanho-lote: 50
+
 management:
   endpoints:
     web:
       exposure:
         include: health,info
 
+logging:
+  level:
+    root: WARN
+    com.tcc: INFO

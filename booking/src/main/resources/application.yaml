@@ -21,6 +21,31 @@ spring:
     init:
       mode: never
 
+# Eventuate Tram: o broker onde o Eventuate CDC publica o conteúdo da outbox
+eventuatelocal:
+  kafka:
+    bootstrap:
+      servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+# ---------------------------------------------------------------------------
+# Fatores experimentais da rodada atual.
+# Todos vêm de variável de ambiente para que o script da matriz troque de
+# combinação apenas reiniciando os containers, sem tocar em código.
+# ---------------------------------------------------------------------------
+experimento:
+  run-id: ${EXPERIMENT_RUN_ID:local}
+  estrategia: ${RECOVERY_STRATEGY:BACKWARD}
+  cenario-falha: ${FAULT_SCENARIO:NONE}
+  posicao-falha: ${FAULT_POSITION:T4}
+  limite-tentativas: ${RECOVERY_RETRY_LIMIT:3}
+  backoff-inicial-ms: ${RECOVERY_RETRY_BACKOFF_MS:200}
+  backoff-maximo-ms: ${RECOVERY_RETRY_BACKOFF_MAX_MS:5000}
+  falhas-temporarias: ${FAULT_TEMPORARY_FAILURES:2}
+  atraso-decisao-aprovacao-segundos: ${APPROVAL_DECISION_DELAY_SECONDS:2}
+  motor:
+    intervalo-ms: ${RECOVERY_ENGINE_INTERVAL_MS:100}
+    tamanho-lote: ${RECOVERY_ENGINE_BATCH_SIZE:200}
+
 # Configuração do Actuator
 management:
   endpoints:
@@ -40,8 +65,9 @@ logging:
   level:
     root: INFO
     com.tcc.booking: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.data: DEBUG
+    com.tcc.saga: DEBUG
+    org.springframework.web: INFO
+    org.springframework.data: INFO
     org.hibernate: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

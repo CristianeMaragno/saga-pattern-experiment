@@ -19,7 +19,9 @@ import lombok.NoArgsConstructor;
 public class HoldResponseDTO {
 
     private Long id;
+    private Long solicitacaoId;
     private String type;
+    private String status;
     private String reference;
     private Instant createdAt;
     private Instant expiresAt;
@@ -30,7 +32,9 @@ public class HoldResponseDTO {
     public static HoldResponseDTO fromDomain(Hold hold) {
         return HoldResponseDTO.builder()
                 .id(hold.getId())
+                .solicitacaoId(hold.getSolicitacaoId())
                 .type(hold.getType() != null ? hold.getType().name() : null)
+                .status(hold.getStatus() != null ? hold.getStatus().name() : null)
                 .reference(hold.getReference())
                 .createdAt(hold.getCreatedAt())
                 .expiresAt(hold.getExpiresAt())

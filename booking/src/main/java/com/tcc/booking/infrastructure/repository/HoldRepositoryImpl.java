@@ -36,6 +36,13 @@ public class HoldRepositoryImpl implements HoldRepository {
     }
 
     @Override
+    public Optional<Hold> obterPorSolicitacaoIdETipo(Long solicitacaoId, Hold.HoldType type) {
+        return jpaRepository.findBySolicitacaoIdAndType(solicitacaoId,
+                        HoldJpaEntity.HoldType.valueOf(type.name()))
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<Hold> obterPorId(Long id) {
         log.info("Buscando hold com ID: {}", id);
         return jpaRepository.findById(id)

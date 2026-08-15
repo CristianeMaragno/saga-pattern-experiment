@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateHoldRequestDTO {
 
+    @jakarta.validation.constraints.NotNull(message = "ID da solicitação é obrigatório")
+    private Long solicitacaoId;
+
     @NotBlank(message = "Referência é obrigatória")
     private String reference;
 

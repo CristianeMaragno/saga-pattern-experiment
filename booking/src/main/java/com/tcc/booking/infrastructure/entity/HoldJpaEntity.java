@@ -32,9 +32,16 @@ public class HoldJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "solicitacao_id", nullable = false)
+    private Long solicitacaoId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
     private HoldType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private HoldStatus status;
 
     @Column(name = "reference", nullable = false, length = 255)
     private String reference;
@@ -50,5 +57,12 @@ public class HoldJpaEntity {
      */
     public enum HoldType {
         FLIGHT, HOTEL
+    }
+
+    /**
+     * Ciclo de vida do hold.
+     */
+    public enum HoldStatus {
+        ATIVO, CONFIRMADO, LIBERADO, EXPIRADO
     }
 }

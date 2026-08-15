@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AprovacaoJpaRepository extends JpaRepository<AprovacaoJpaEntity, Long> {
+
+    java.util.Optional<AprovacaoJpaEntity> findBySolicitacaoId(Long solicitacaoId);
 }

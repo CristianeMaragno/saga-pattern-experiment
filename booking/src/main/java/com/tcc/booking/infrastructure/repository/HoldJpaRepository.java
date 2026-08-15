@@ -11,4 +11,6 @@ import com.tcc.booking.infrastructure.entity.HoldJpaEntity;
  */
 @Repository
 public interface HoldJpaRepository extends JpaRepository<HoldJpaEntity, Long> {
+
+    java.util.Optional<HoldJpaEntity> findBySolicitacaoIdAndType(Long solicitacaoId, HoldJpaEntity.HoldType type);
 }

@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 @Builder
 public class CreateAprovacaoRequestDTO {
 
+    @NotNull(message = "ID da solicitação é obrigatório")
+    private Long solicitacaoId;
+
     @NotNull(message = "ID do solicitante é obrigatório")
     private Long solicitanteId;
 

@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -52,6 +53,25 @@ public class SolicitacaoJpaEntity {
     @Column(name = "status", nullable = false, length = 20)
     private StatusSolicitacao status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "resultado_saga", length = 20)
+    private ResultadoSaga resultadoSaga;
+
+    @Column(name = "etapa_falha", length = 10)
+    private String etapaFalha;
+
+    @Column(name = "valor_voo", precision = 12, scale = 2)
+    private BigDecimal valorVoo;
+
+    @Column(name = "valor_hotel", precision = 12, scale = 2)
+    private BigDecimal valorHotel;
+
+    @Column(name = "pagamento_voo_confirmado", nullable = false)
+    private boolean pagamentoVooConfirmado;
+
+    @Column(name = "pagamento_hotel_confirmado", nullable = false)
+    private boolean pagamentoHotelConfirmado;
+
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
@@ -63,5 +83,12 @@ public class SolicitacaoJpaEntity {
      */
     public enum StatusSolicitacao {
         RASCUNHO, PENDENTE, APROVADA, REJEITADA, CONFIRMADO, CANCELADA
+    }
+
+    /**
+     * Desfecho da instância de saga.
+     */
+    public enum ResultadoSaga {
+        SUCESSO, COMPENSADA, ABORTADA, REJEITADA
     }
 }

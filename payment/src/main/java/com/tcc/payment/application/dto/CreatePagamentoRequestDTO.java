@@ -18,6 +18,9 @@ import lombok.NoArgsConstructor;
 public class CreatePagamentoRequestDTO {
 
     @NotBlank(message = "Referência é obrigatória")
+    @jakarta.validation.constraints.NotNull(message = "ID da solicitação é obrigatório")
+    private Long solicitacaoId;
+
     private String referencia;
 
     @NotNull(message = "Valor é obrigatório")

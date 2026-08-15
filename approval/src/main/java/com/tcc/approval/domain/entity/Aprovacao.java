@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 public class Aprovacao {
 
     private Long id;
+    /** Identificador de correlação da instância de saga. */
+    private Long solicitacaoId;
     private Long solicitanteId;
     private Long responsavelId;
     private LocalDateTime tempoLimite;
@@ -35,6 +37,9 @@ public class Aprovacao {
      * Exemplo de lógica pura de domínio.
      */
     public void validar() {
+        if (solicitacaoId == null || solicitacaoId <= 0) {
+            throw new IllegalArgumentException("ID da solicitação é obrigatório");
+        }
         if (solicitanteId == null || solicitanteId <= 0) {
             throw new IllegalArgumentException("ID do solicitante é obrigatório");
         }
@@ -76,10 +81,15 @@ public class Aprovacao {
      */
     public void cancelar() {
         if (this.status == StatusAprovacao.CANCELADA) {
-            throw new IllegalStateException("Aprovação já foi cancelada");
+            return; // idempotente: a cadeia de compensação pode reentregar o evento
         }
         this.status = StatusAprovacao.CANCELADA;
         this.dataAtualizacao = LocalDateTime.now();
+    }
+
+    /** Estados dos quais a aprovação não sai mais. */
+    public boolean isTerminal() {
+        return status != StatusAprovacao.PENDENTE;
     }
 
     /**

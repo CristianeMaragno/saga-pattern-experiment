@@ -41,6 +41,13 @@ public class PagamentoMockRepository implements PagamentoRepository {
     }
 
     @Override
+    public Optional<Pagamento> obterPorSolicitacaoIdETipo(Long solicitacaoId, Pagamento.TipoPagamento tipo) {
+        return database.values().stream()
+                .filter(p -> solicitacaoId.equals(p.getSolicitacaoId()) && p.getTipo() == tipo)
+                .findFirst();
+    }
+
+    @Override
     public Optional<Pagamento> obterPorId(Long id) {
         log.info("[MOCK] Buscando pagamento com ID: {}", id);
         return Optional.ofNullable(database.get(id));

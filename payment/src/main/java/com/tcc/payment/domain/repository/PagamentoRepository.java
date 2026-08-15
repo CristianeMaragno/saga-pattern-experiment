@@ -33,4 +33,13 @@ public interface PagamentoRepository {
      * @return lista de todos os pagamentos
      */
     List<Pagamento> obterTodos();
+
+    /**
+     * Busca o pagamento de um tipo específico dentro de uma instância de saga.
+     *
+     * @param solicitacaoId identificador de correlação da saga
+     * @param tipo tipo do pagamento (voo ou hotel)
+     * @return o pagamento, ou vazio se não encontrado
+     */
+    Optional<Pagamento> obterPorSolicitacaoIdETipo(Long solicitacaoId, Pagamento.TipoPagamento tipo);
 }

@@ -1,0 +1,29 @@
+# Scrape dos endpoints /actuator/prometheus dos cinco serviços.
+#
+# Serve para observar a rodada ao vivo (throughput HTTP, taxa de erro, JVM).
+# As métricas da monografia — taxa de sucesso das sagas, tempo de recuperação,
+# compensações, retries — saem da tabela de auditoria do serviço audit, porque
+# são por instância de saga e o Prometheus só guarda séries agregadas.
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: saga-services
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["travel:8080"]
+        labels: { servico: travel }
+      - targets: ["approval:8081"]
+        labels: { servico: approval }
+      - targets: ["booking:8082"]
+        labels: { servico: booking }
+      - targets: ["payment:8083"]
+        labels: { servico: payment }
+      - targets: ["audit:8084"]
+        labels: { servico: audit }
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

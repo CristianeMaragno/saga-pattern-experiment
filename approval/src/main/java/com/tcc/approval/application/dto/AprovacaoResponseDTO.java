@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class AprovacaoResponseDTO {
 
     private Long id;
+    private Long solicitacaoId;
     private Long solicitanteId;
     private Long responsavelId;
     private LocalDateTime tempoLimite;
@@ -31,6 +32,7 @@ public class AprovacaoResponseDTO {
     public static AprovacaoResponseDTO fromDomain(Aprovacao aprovacao) {
         return AprovacaoResponseDTO.builder()
                 .id(aprovacao.getId())
+                .solicitacaoId(aprovacao.getSolicitacaoId())
                 .solicitanteId(aprovacao.getSolicitanteId())
                 .responsavelId(aprovacao.getResponsavelId())
                 .tempoLimite(aprovacao.getTempoLimite())

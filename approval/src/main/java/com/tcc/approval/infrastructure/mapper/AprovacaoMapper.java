@@ -21,6 +21,7 @@ public class AprovacaoMapper {
 
         return Aprovacao.builder()
                 .id(jpaEntity.getId())
+                .solicitacaoId(jpaEntity.getSolicitacaoId())
                 .solicitanteId(jpaEntity.getSolicitanteId())
                 .responsavelId(jpaEntity.getResponsavelId())
                 .tempoLimite(jpaEntity.getTempoLimite())
@@ -42,6 +43,7 @@ public class AprovacaoMapper {
 
         return AprovacaoJpaEntity.builder()
                 .id(domain.getId())
+                .solicitacaoId(domain.getSolicitacaoId())
                 .solicitanteId(domain.getSolicitanteId())
                 .responsavelId(domain.getResponsavelId())
                 .tempoLimite(domain.getTempoLimite())

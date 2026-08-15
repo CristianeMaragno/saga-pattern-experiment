@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 public class PagamentoResponseDTO {
 
     private Long id;
+    private Long solicitacaoId;
     private String tipo;
     private String referencia;
     private BigDecimal valor;
@@ -33,6 +34,7 @@ public class PagamentoResponseDTO {
     public static PagamentoResponseDTO fromDomain(Pagamento pagamento) {
         return PagamentoResponseDTO.builder()
                 .id(pagamento.getId())
+                .solicitacaoId(pagamento.getSolicitacaoId())
                 .tipo(pagamento.getTipo() != null ? pagamento.getTipo().name() : null)
                 .referencia(pagamento.getReferencia())
                 .valor(pagamento.getValor())

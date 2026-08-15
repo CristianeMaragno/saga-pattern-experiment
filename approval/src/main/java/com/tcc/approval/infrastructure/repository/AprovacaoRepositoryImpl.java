@@ -45,6 +45,12 @@ public class AprovacaoRepositoryImpl implements AprovacaoRepository {
     }
 
     @Override
+    public Optional<Aprovacao> obterPorSolicitacaoId(Long solicitacaoId) {
+        return jpaRepository.findBySolicitacaoId(solicitacaoId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public List<Aprovacao> obterTodas() {
         log.info("Buscando todas as aprovações");
         return jpaRepository.findAll()

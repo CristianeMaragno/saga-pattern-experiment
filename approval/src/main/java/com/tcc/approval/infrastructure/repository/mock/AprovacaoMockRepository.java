@@ -37,6 +37,7 @@ public class AprovacaoMockRepository implements AprovacaoRepository {
     private static void initializeMockData() {
         Aprovacao aprovacao1 = Aprovacao.builder()
                 .id(1L)
+                .solicitacaoId(1L)
                 .solicitanteId(1L)
                 .responsavelId(101L)
                 .tempoLimite(LocalDateTime.now().plusDays(2))
@@ -46,6 +47,7 @@ public class AprovacaoMockRepository implements AprovacaoRepository {
 
         Aprovacao aprovacao2 = Aprovacao.builder()
                 .id(2L)
+                .solicitacaoId(2L)
                 .solicitanteId(1L)
                 .responsavelId(102L)
                 .tempoLimite(LocalDateTime.now().plusDays(5))
@@ -74,6 +76,13 @@ public class AprovacaoMockRepository implements AprovacaoRepository {
     public Optional<Aprovacao> obterPorId(Long id) {
         log.info("[MOCK] Buscando aprovação com ID: {}", id);
         return Optional.ofNullable(database.get(id));
+    }
+
+    @Override
+    public Optional<Aprovacao> obterPorSolicitacaoId(Long solicitacaoId) {
+        return database.values().stream()
+                .filter(a -> solicitacaoId.equals(a.getSolicitacaoId()))
+                .findFirst();
     }
 
     @Override
