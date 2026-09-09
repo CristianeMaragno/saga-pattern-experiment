@@ -1,0 +1,21 @@
+apiVersion: 1
+
+# Fonte das métricas da monografia (taxa de sucesso, tempos de recuperação,
+# compensações, retries...): a tabela `saga_auditoria` do audit-db, não o
+# Prometheus — ver observability/prometheus.yml. Os dashboards de
+# saga-metricas-experimento.json consultam esse datasource diretamente.
+datasources:
+  - name: Audit PostgreSQL
+    uid: audit-postgres
+    type: postgres
+    access: proxy
+    url: audit-db:5432
+    user: audit_user
+    editable: true
+    jsonData:
+      database: audit_db
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false
+    secureJsonData:
+      password: audit_password

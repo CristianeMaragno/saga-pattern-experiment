@@ -94,9 +94,9 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoAprovacaoSolicitada(AprovacaoSolicitada evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.getStatus() != Solicitacao.StatusSolicitacao.RASCUNHO) {
-            return; // reentrega
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao == null || solicitacao.getStatus() != Solicitacao.StatusSolicitacao.RASCUNHO) {
+            return; // reentrega, ou rodada de experimento já limpa
         }
         solicitacao.aguardarAprovacao();
         solicitacaoRepository.salvar(solicitacao);
@@ -107,9 +107,9 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoAprovacaoAprovada(AprovacaoAprovada evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.getStatus() != Solicitacao.StatusSolicitacao.PENDENTE) {
-            return; // reentrega
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao == null || solicitacao.getStatus() != Solicitacao.StatusSolicitacao.PENDENTE) {
+            return; // reentrega, ou rodada de experimento já limpa
         }
         solicitacao.aprovar();
         solicitacaoRepository.salvar(solicitacao);
@@ -121,9 +121,9 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoAprovacaoRejeitada(AprovacaoRejeitada evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.isTerminal()) {
-            return; // reentrega
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao == null || solicitacao.isTerminal()) {
+            return; // reentrega, ou rodada de experimento já limpa
         }
         solicitacao.rejeitar();
         solicitacaoRepository.salvar(solicitacao);
@@ -137,8 +137,8 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoPagamentoVooConfirmado(PagamentoVooConfirmado evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.registrarPagamentoVoo()) {
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao != null && solicitacao.registrarPagamentoVoo()) {
             solicitacaoRepository.salvar(solicitacao);
             confirmarSeAmbosOsRamosChegaram(solicitacao);
         }
@@ -149,8 +149,8 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoPagamentoHotelConfirmado(PagamentoHotelConfirmado evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.registrarPagamentoHotel()) {
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao != null && solicitacao.registrarPagamentoHotel()) {
             solicitacaoRepository.salvar(solicitacao);
             confirmarSeAmbosOsRamosChegaram(solicitacao);
         }
@@ -161,9 +161,9 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoAprovacaoCancelada(AprovacaoCancelada evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.isTerminal()) {
-            return; // reentrega
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao == null || solicitacao.isTerminal()) {
+            return; // reentrega, ou rodada de experimento já limpa
         }
         String etapaFalha = evento.getEtapaOrigemFalha() != null ? evento.getEtapaOrigemFalha().name() : null;
         solicitacao.cancelar(Solicitacao.ResultadoSaga.COMPENSADA, etapaFalha);
@@ -181,9 +181,9 @@ public class SolicitacaoUseCase {
      */
     @Transactional
     public void aoSagaAbortada(SagaAbortada evento) {
-        Solicitacao solicitacao = obter(evento.getSolicitacaoId());
-        if (solicitacao.isTerminal()) {
-            return; // reentrega
+        Solicitacao solicitacao = obterSeExistir(evento.getSolicitacaoId());
+        if (solicitacao == null || solicitacao.isTerminal()) {
+            return; // reentrega, ou rodada de experimento já limpa
         }
         String etapaFalha = evento.getEtapa() != null ? evento.getEtapa().name() : null;
         solicitacao.cancelar(Solicitacao.ResultadoSaga.ABORTADA, etapaFalha);
@@ -224,5 +224,24 @@ public class SolicitacaoUseCase {
     public Solicitacao obter(Long id) {
         return solicitacaoRepository.obterPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada com ID: " + id));
+    }
+
+    /**
+     * Busca sem lançar, para uso nos handlers de evento.
+     *
+     * Os tópicos Kafka não são limpos entre rodadas do experimento — só as
+     * tabelas de negócio são (TRUNCATE em limpar_bancos.sh). Um handler que
+     * ainda esteja processando o backlog de uma rodada anterior pode receber
+     * um evento para um ID que já não existe mais. Deixar {@link #obter}
+     * lançar aqui derrubaria o consumidor Kafka inteiro — o Eventuate Tram
+     * trata qualquer exceção do handler como fatal e encerra a inscrição — em
+     * vez de simplesmente descartar essa mensagem tardia.
+     */
+    private Solicitacao obterSeExistir(Long id) {
+        Solicitacao solicitacao = solicitacaoRepository.obterPorId(id).orElse(null);
+        if (solicitacao == null) {
+            log.warn("Solicitação {} não encontrada (mensagem tardia de rodada anterior?); ignorando evento", id);
+        }
+        return solicitacao;
     }
 }

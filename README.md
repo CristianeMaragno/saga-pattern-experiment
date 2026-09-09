@@ -167,9 +167,13 @@ eventos, percentual de sagas recuperadas sem compensação e tempo até a
 consistência eventual.
 
 O Prometheus (`:9090`) e o Grafana (`:3000`, admin/admin) servem para observar a
-rodada ao vivo — throughput HTTP, taxa de erro, JVM. Não são a fonte dos dados
-da monografia: as métricas do experimento são por instância de saga, e o
-Prometheus só guarda séries agregadas.
+rodada ao vivo. O Prometheus só guarda séries agregadas (throughput HTTP, taxa
+de erro, JVM — dashboard *Saga — visão operacional*), porque as métricas do
+experimento são por instância de saga. Por isso o Grafana tem um segundo
+dashboard, *Métricas do experimento (auditoria da saga)*, que consulta o
+audit-db diretamente (datasource Postgres `audit-postgres`) e mostra as nove
+métricas acima ao vivo para a rodada selecionada — sem precisar do `curl` em
+`/metricas`.
 
 ## Testes
 

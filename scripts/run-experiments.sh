@@ -60,21 +60,47 @@ erro() { echo -e "\033[1;31m[erro]\033[0m $*" >&2; }
 # Infra
 # ---------------------------------------------------------------------------
 
-# Trunca as tabelas de negócio e de mensageria de todos os serviços. Sem isso,
-# a rodada seguinte herdaria sagas pendentes e mensagens não publicadas da
-# anterior, contaminando as métricas.
+# Trunca as tabelas de negócio e de mensageria de travel/approval/booking/
+# payment. Sem isso, a rodada seguinte herdaria sagas pendentes e mensagens
+# não publicadas da anterior, contaminando as métricas. saga_auditoria (no
+# audit-db) é a exceção — ver comentário em limpar_bancos.
+# O TRUNCATE de várias tabelas de uma vez pede lock exclusivo em todas elas, e
+# o serviço recém-recriado (reconfigurar_servicos) pode ainda ter threads em
+# segundo plano (leitor do CDC, consumidor Kafka) consultando essas mesmas
+# tabelas — o Postgres às vezes resolve isso com "ERROR: deadlock detected",
+# o que mataria a matriz inteira no meio por causa do set -e. Como é
+# transitório, a tentativa é repetida antes de desistir de verdade.
+truncar() {
+  local servico="$1" usuario="$2" banco="$3" sql="$4"
+  local tentativas=0
+  until docker compose exec -T "$servico" psql -U "$usuario" -d "$banco" -q -c "$sql" >/dev/null; do
+    tentativas=$((tentativas + 1))
+    if [ "$tentativas" -ge 5 ]; then
+      erro "limpeza de $banco falhou após $tentativas tentativas"
+      return 1
+    fi
+    log "limpeza de $banco falhou (provável deadlock transitório), tentativa $tentativas/5"
+    sleep 2
+  done
+}
+
 limpar_bancos() {
   log "limpando o estado dos bancos"
-  docker compose exec -T travel-db psql -U travel_user -d travel_db -q -c \
-    "TRUNCATE solicitacoes, eventuate.message, eventuate.received_messages RESTART IDENTITY;" >/dev/null
-  docker compose exec -T approval-db psql -U approval_user -d approval_db -q -c \
-    "TRUNCATE aprovacoes, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;" >/dev/null
-  docker compose exec -T booking-db psql -U booking_user -d booking_db -q -c \
-    "TRUNCATE holds, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;" >/dev/null
-  docker compose exec -T payment-db psql -U payment_user -d payment_db -q -c \
-    "TRUNCATE pagamentos, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;" >/dev/null
-  docker compose exec -T audit-db psql -U audit_user -d audit_db -q -c \
-    "TRUNCATE saga_auditoria, eventuate.message, eventuate.received_messages RESTART IDENTITY;" >/dev/null
+  truncar travel-db travel_user travel_db \
+    "TRUNCATE solicitacoes, eventuate.message, eventuate.received_messages RESTART IDENTITY;"
+  truncar approval-db approval_user approval_db \
+    "TRUNCATE aprovacoes, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;"
+  truncar booking-db booking_user booking_db \
+    "TRUNCATE holds, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;"
+  truncar payment-db payment_user payment_db \
+    "TRUNCATE pagamentos, etapa_pendente, eventuate.message, eventuate.received_messages RESTART IDENTITY;"
+  # saga_auditoria fica de fora de propósito: toda linha já carrega run_id, e
+  # é o dataset final da análise — limpar a cada rodada só faria perder o
+  # histórico das rodadas anteriores sem nenhum ganho (as consultas de
+  # métricas já filtram por run_id, então rodadas antigas não contaminam a
+  # atual). Só o outbox/dedup do Eventuate Tram é limpo aqui.
+  truncar audit-db audit_user audit_db \
+    "TRUNCATE eventuate.message, eventuate.received_messages RESTART IDENTITY;"
 }
 
 esperar_saude() {
@@ -126,8 +152,11 @@ esperar_estabilizacao() {
     fi
 
     # Também para quando nada mais se move, para não travar a matriz inteira
-    # por causa de uma rodada com sagas presas.
-    if [ "$total" -eq "$anterior" ] && [ "$andamento" -eq 0 ]; then
+    # por causa de uma rodada com sagas presas. total=0 nunca conta como
+    # "parado": logo após o force-recreate dos serviços, o CDC pode levar bem
+    # mais que alguns segundos para retomar a publicação, e 0 parado só
+    # significa "ainda não chegou nada", não "a rodada terminou".
+    if [ "$total" -eq "$anterior" ] && [ "$andamento" -eq 0 ] && [ "$total" -gt 0 ]; then
       estavel=$((estavel + 1))
       [ "$estavel" -ge 3 ] && { log "estabilizou com $total/$esperadas sagas"; return 0; }
     else
