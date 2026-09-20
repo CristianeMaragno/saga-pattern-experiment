@@ -10,6 +10,7 @@
       "type": "timeseries",
       "title": "Throughput HTTP por serviço (req/s)",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "expr": "sum by (servico) (rate(http_server_requests_seconds_count[1m]))",
@@ -21,6 +22,7 @@
       "type": "timeseries",
       "title": "Taxa de erro HTTP 5xx (req/s)",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "expr": "sum by (servico) (rate(http_server_requests_seconds_count{status=~\"5..\"}[1m]))",
@@ -32,6 +34,7 @@
       "type": "timeseries",
       "title": "Latência p95 do POST /api/v1/solicitacoes (s)",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri=\"/api/v1/solicitacoes\"}[1m])))",
@@ -43,6 +46,7 @@
       "type": "timeseries",
       "title": "Heap JVM utilizada (bytes)",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": { "defaults": { "unit": "bytes", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "expr": "sum by (servico) (jvm_memory_used_bytes{area=\"heap\"})",

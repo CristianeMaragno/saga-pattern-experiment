@@ -135,18 +135,103 @@ docker compose up --build -d
 ./scripts/run-experiments.sh --cargas 100 --posicoes T4 #outras configurações
 ```
 
-Para cada combinação o script reconfigura os serviços, limpa os bancos, dispara
-a carga, **espera as sagas estabilizarem** (a saga continua depois que o HTTP
-responde — medir antes disso daria números truncados), exporta a linha do tempo
-em CSV e as métricas em JSON, e segue para a próxima.
+Para cada combinação o script reconfigura os serviços, **aquece a JVM** com
+sagas descartáveis, limpa os bancos e o rastro de auditoria desse aquecimento,
+dispara a carga, **espera as sagas estabilizarem** (a saga continua depois que
+o HTTP responde — medir antes disso daria números truncados), exporta a linha
+do tempo em CSV e as métricas em JSON, faz uma pausa de resfriamento e segue
+para a próxima. Ver a seção seguinte para o porquê de cada uma dessas etapas.
 
 Saída em `resultados/`:
 
 - `<runId>.csv` — linha do tempo completa da rodada, um evento por linha
 - `<runId>-metricas.json` — métricas agregadas
 - `<runId>.jtl` — resultados brutos do JMeter
-- `consolidado.csv` — uma linha por rodada, com os fatores já em colunas,
-  pronto para a análise estatística
+- `<runId>.estabilizou` — `sim`/`nao`: se a rodada saiu do loop de espera por
+  ter realmente estabilizado ou por ter esgotado `TIMEOUT_ESTABILIZACAO`
+  (`consolidar-resultados.py` usa isso para não deixar uma rodada incompleta
+  passar por normal silenciosamente)
+- `consolidado.csv` — uma linha por rodada, com os fatores já em colunas e o
+  IC95% do tempo de conclusão, pronto para a análise estatística
+
+## Calibração de carga (justificando os volumes 100/1000/5000)
+
+Experimento separado da matriz de estratégia × cenário × posição de falha,
+que responde a uma pergunta diferente: **que volumes de usuários usar** na
+matriz principal, e por quê. Em vez de comparar estratégias de recuperação,
+roda uma única configuração fixa (por padrão sem falha injetada, para isolar
+o efeito do volume do custo de compensação/retry) sob uma varredura fina de
+cargas — do menor ao maior volume — e permite observar em que faixa as
+métricas param de mudar de forma relevante entre um ponto e o próximo. Essa
+estabilização é o critério objetivo para justificar, na monografia, que
+100/1000/5000 representam de fato os regimes de carga baixa, intermediária e
+já estabilizada, em vez de serem valores arbitrários.
+
+```bash
+docker compose up --build -d
+./scripts/run-experimento-carga.sh                                   # varredura padrão (10 pontos)
+./scripts/run-experimento-carga.sh --cargas 10,50,100,500,1000,5000,10000
+./scripts/run-experimento-carga.sh --estrategia FORWARD --cenario TEMPORARY --posicao T4
+```
+
+Reaproveita a mesma infraestrutura de isolamento da matriz principal (JVM
+nova por rodada, aquecimento, limpeza de bancos, espera de consistência
+eventual, pausa de resfriamento — ver `scripts/experimento-lib.sh`, extraída
+de `run-experiments.sh` para as duas rotinas compartilharem o mesmo código).
+
+Saída em `resultados/calibracao-carga/` (pasta própria, para não misturar
+com `resultados/consolidado.csv` da matriz principal):
+
+- `CARGA_<carga>.csv` / `-metricas.json` / `.jtl` / `.estabilizou` — por
+  ponto de carga, mesmo formato da matriz principal
+- `consolidado-carga.csv` — uma linha por carga, **ordenada numericamente**,
+  com colunas extras de variação percentual em relação ao ponto anterior
+  (`taxa_sucesso_variacao_pct`, `tempo_medio_conclusao_variacao_pct`,
+  `throughput_variacao_pct` — ver `scripts/consolidar-carga.py`). É essa
+  variação que sustenta a alegação de estabilização: por exemplo, throughput
+  variando 33% de 10→100 usuários mas menos de 1% de 1000→5000 indica que a
+  faixa alta já saturou o que a mudança de volume consegue afetar.
+
+## Controle de isolamento experimental
+
+Medir tempo de execução de um sistema Java sob carga tem as mesmas armadilhas
+descritas no Capítulo 5 da tese de HUF (2025) — *FasterSparql: An architecture
+for query mediation over loosely coupled federations of knowledge graphs*
+(UFSC, orientador Frank A. Siqueira): JIT ainda "frio", GC, throttling térmico
+e variância não controlada podem confundir o efeito da estratégia de
+recuperação sendo comparada com ruído do ambiente. A extração completa das
+técnicas do capítulo 5.2 da tese e a análise de aplicabilidade a este
+experimento estão em [`Isolamento-experimento.md`](Isolamento-experimento.md);
+esta seção resume o que foi adotado, adaptado ou descartado, e onde cada
+decisão está implementada.
+
+O experimento da tese usa JMH (Java Microbenchmark Harness) para medir um
+único processo em memória; o nosso mede uma saga coreografada fim a fim, entre
+5 JVMs, Kafka e 5 bancos, via HTTP/JMeter — por isso nem toda técnica se
+transporta 1:1. As adaptações e recusas estão marcadas como tal.
+
+| # | Técnica (HUF, 2025) | Status aqui | Onde |
+|---|---|---|---|
+| 2 | JVM nova por configuração testada (fork) | **Adotado** — `docker compose up --force-recreate` recria os 5 containers a cada combinação, evitando JIT "aquecido", GC e estado estático vazando de uma rodada para outra | `scripts/run-experiments.sh` (`reconfigurar_servicos`) |
+| 3 | Warm-up com descarte de amostras iniciais | **Adotado** — antes de medir, `N` sagas descartáveis aquecem JIT, pool de conexões e os tópicos Kafka; o próprio `TRUNCATE` e um `DELETE /auditoria?runId=` descartam esse tráfego antes da carga real | `scripts/run-experiments.sh` (`aquecer_servicos`), configurável via `AQUECIMENTO`/`--aquecimento` |
+| 5 | Aguardar término real de tasks assíncronas antes da próxima medição | **Adaptado** — Kafka não tem um "cancelamento com espera" como o `Future` do JMH; a defesa aqui é descartar mensagens tardias de uma rodada anterior nos 5 handlers de evento (`obterSeExistir`/`orElse(null)`), em vez de deixá-las contaminar o `run_id` corrente ou derrubar o consumidor (episódio documentado em `Ajustes.md`, 2026-09-07) | `travel/.../SolicitacaoUseCase.java` e equivalentes em approval/booking/payment |
+| 6 | Pausas de resfriamento térmico entre iterações | **Adaptado** — a fórmula da tese vale para iterações de milissegundos dentro de um fork; aqui a pausa é entre rodadas inteiras (minutos), para que a carga térmica/CPU de uma rodada não vaze sistematicamente para a próxima | `scripts/run-experiments.sh`, `PAUSA_ENTRE_RODADAS`/`--pausa` (padrão 15s) |
+| 7 | Máquina única dedicada, sem vizinhos ruidosos / fora de horário de pico | **Adotado** (já era o caso) — todos os serviços, bancos e Kafka rodam no mesmo `docker-compose.yaml`, numa única máquina; recomendação operacional: evitar rodar a matriz completa com a máquina sob outra carga pesada concorrente | `docker-compose.yaml` |
+| 8 | Heap máximo fixo (`-Xmx`) igual entre configurações | **Adotado** — `-Xms512m -Xmx512m` fixo e idêntico nos 5 serviços e em todas as rodadas, via `JAVA_TOOL_OPTIONS` | `docker-compose.yaml` (`x-experimento`), ajustável por `JAVA_HEAP_OPTS` |
+| 10 | IC95% via bootstrap BCa em vez de teste-t clássico | **Adotado** — tempos de execução têm cauda longa (GC, I/O, retry/backoff) e não se pode assumir normalidade; `consolidar-resultados.py` reconstrói os tempos de conclusão por saga a partir do `<runId>.csv` e calcula o IC95% por bootstrap BCa (Efron; Tibshirani, 1986), sem depender de numpy/scipy | `scripts/consolidar-resultados.py` (`bootstrap_bca`), colunas `tempo_conclusao_ic95_*` em `consolidado.csv` |
+| 11 | Agregar sobre uma janela mínima em vez de medir invocações isoladas | **Já satisfeito por construção** — as métricas sempre agregam entre 100 e 5.000 sagas por rodada, nunca uma invocação isolada; nenhuma mudança necessária | `audit` (`AuditoriaUseCase.calcularMetricas`) |
+| 1 | JMH como base do isolamento | **Não aplicável** — JMH mede um método Java isolado, dentro de um processo; aqui a métrica é fim a fim entre 5 processos/rede/mensageria, o que está fora do escopo do JMH. JMeter cumpre o papel equivalente (orquestrar carga, medir, agregar) | — |
+| 4 | GC completo forçado entre warm-up e medição | **Avaliado e não adotado** — exigiria `jcmd` (só vem no JDK completo; as imagens de runtime aqui são `eclipse-temurin:*-jre-alpine`, sem ferramentas de diagnóstico) trocar a imagem só para isso não se justificava. Além disso, o lixo do warm-up pesa muito menos numa janela de medição de segundos/minutos do que numa iteração JMH de 500ms | — |
+| 9 | VM "dedicated" vs. "burstable"/"shared" | **Não aplicável** — execução local, não em nuvem; não há *neighbor* multi-tenant disputando os mesmos núcleos | — |
+| 12 | Profiling de amostragem (async-profiler) separado da medição | **Não aplicável por ora** — não há instrumentação manual fina (`System.nanoTime()` espalhado) dentro dos handlers que precise ser substituída; fica registrado como abordagem recomendada caso o trabalho futuro precise decompor onde o tempo é gasto dentro da saga | — |
+
+**Limitação sabida:** o aquecimento (item 3) usa um número fixo e pequeno de
+sagas (`AQUECIMENTO`, padrão 5) e uma espera fixa (`AQUECIMENTO_ESPERA_SEGUNDOS`,
+padrão 10s) em vez de convergência observada — suficiente para tocar os
+caminhos de código relevantes (incluindo o de compensação, quando o cenário da
+rodada injeta falha), mas não garante que 100% do tráfego de aquecimento
+chegue a um estado terminal antes de prosseguir. Isso é aceitável porque o
+objetivo é aquecer a JVM, não medir o aquecimento.
 
 ## Métricas
 
@@ -239,3 +324,36 @@ KRaft e não o utiliza.
 
 **Sem dados de exemplo nos `init.sql`.** Cada rodada precisa começar de um
 estado limpo, senão as linhas de fixture entram nas agregações da análise.
+
+## Exemplos de consultas PromQL
+
+Já vêm prontas como gráficos no dashboard *Saga — visão operacional* do
+Grafana (ver seção de observabilidade acima) — isto aqui é só referência caso
+queira rodar alguma direto na aba **Graph** do Prometheus (`:9090`).
+
+**Requisições por segundo, por serviço**
+
+```promql
+sum by (servico) (rate(http_server_requests_seconds_count[1m]))
+```
+
+**Taxa de erro HTTP 5xx, por serviço** (se subir do zero, algo quebrou de
+verdade — não é falha injetada pelo experimento)
+
+```promql
+sum by (servico) (rate(http_server_requests_seconds_count{status=~"5.."}[1m]))
+```
+
+**Latência p95 do endpoint de criação de solicitação** (em segundos)
+
+```promql
+histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri="/api/v1/solicitacoes"}[1m])))
+```
+
+**Heap da JVM em uso, por serviço** (útil se uma rodada de carga alta, tipo
+5000, parecer estar sufocando algum container)
+
+```promql
+sum by (servico) (jvm_memory_used_bytes{area="heap"})
+```
+

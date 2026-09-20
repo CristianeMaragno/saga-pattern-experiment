@@ -36,7 +36,7 @@
       "title": "Taxa de sucesso das sagas",
       "gridPos": { "h": 5, "w": 5, "x": 0, "y": 3 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
       "targets": [
         {
@@ -51,13 +51,13 @@
       "title": "Tempo médio de conclusão da saga",
       "gridPos": { "h": 5, "w": 5, "x": 5, "y": 3 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 0 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - inicio), 0) AS \"Tempo médio de conclusão\"\nFROM sagas WHERE concluida = 1 AND fim IS NOT NULL;"
+          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - inicio), 2) AS \"Tempo médio de conclusão\"\nFROM sagas WHERE concluida = 1 AND fim IS NOT NULL;"
         }
       ]
     },
@@ -66,13 +66,13 @@
       "title": "Tempo médio de recuperação após falhas",
       "gridPos": { "h": 5, "w": 5, "x": 10, "y": 3 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 0 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - primeira_falha), 0) AS \"Tempo médio de recuperação\"\nFROM sagas WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL;"
+          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - primeira_falha), 2) AS \"Tempo médio de recuperação\"\nFROM sagas WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL;"
         }
       ]
     },
@@ -81,7 +81,7 @@
       "title": "Recuperadas sem compensação",
       "gridPos": { "h": 5, "w": 5, "x": 15, "y": 3 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
       "targets": [
         {
@@ -156,13 +156,13 @@
       "title": "Tempo até consistência eventual",
       "gridPos": { "h": 5, "w": 6, "x": 18, "y": 8 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 0 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "value" },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - inicio), 0) AS \"Tempo até consistência eventual\"\nFROM sagas WHERE fim IS NOT NULL AND inicio IS NOT NULL;"
+          "rawSql": "WITH sagas AS (\n  SELECT solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id = '$run_id' GROUP BY solicitacao_id\n)\nSELECT ROUND(AVG(fim - inicio), 2) AS \"Tempo até consistência eventual\"\nFROM sagas WHERE fim IS NOT NULL AND inicio IS NOT NULL;"
         }
       ]
     },
@@ -171,6 +171,7 @@
       "title": "Sagas por resultado",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "options": { "orientation": "horizontal" },
       "targets": [
         {
@@ -185,6 +186,7 @@
       "title": "Eventos registrados por serviço",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "options": { "orientation": "horizontal" },
       "targets": [
         {
@@ -199,7 +201,7 @@
       "title": "Progresso da rodada — sagas finalizadas (acumulado)",
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 21 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",

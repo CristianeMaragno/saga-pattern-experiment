@@ -17,6 +17,14 @@ x-experimento: &experimento
   FAULT_TEMPORARY_FAILURES: ${FAULT_TEMPORARY_FAILURES:-2}
   APPROVAL_DECISION_DELAY_SECONDS: ${APPROVAL_DECISION_DELAY_SECONDS:-2}
   KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  # Heap fixo e igual entre os 5 serviços e entre todas as rodadas da matriz:
+  # sem isso, diferença de pressão de GC por causa de um heap padrão variável
+  # (calculado pela JVM a partir da memória livre no momento de cada rodada)
+  # viraria uma variável de confusão, e não o desenho da estratégia de
+  # recuperação sendo comparado. Ver Isolamento-experimento.md, item 8
+  # (HUF, 2025, p. 130). -Xms = -Xmx para não somar o redimensionamento do
+  # heap em tempo de execução como mais uma fonte de variância.
+  JAVA_TOOL_OPTIONS: ${JAVA_HEAP_OPTS:--Xms512m -Xmx512m}
 
 x-app-healthcheck: &app-healthcheck
   test: ["CMD-SHELL", "wget -q --spider http://localhost:$${SERVER_PORT}/actuator/health || exit 1"]
