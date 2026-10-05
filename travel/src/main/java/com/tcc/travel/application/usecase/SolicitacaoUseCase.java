@@ -125,6 +125,15 @@ public class SolicitacaoUseCase {
         if (solicitacao == null || solicitacao.isTerminal()) {
             return; // reentrega, ou rodada de experimento já limpa
         }
+        // rejeitar() só aceita PENDENTE e lança IllegalStateException nos outros
+        // casos — o que, num handler, derruba o consumidor Kafka inteiro. Um
+        // evento de rodada anterior pode encontrar um ID reaproveitado (o
+        // TRUNCATE ... RESTART IDENTITY recomeça em 1) numa saga ainda RASCUNHO.
+        if (solicitacao.getStatus() != Solicitacao.StatusSolicitacao.PENDENTE) {
+            log.warn("Rejeição da solicitação {} ignorada: status {} (mensagem tardia de rodada anterior?)",
+                    solicitacao.getId(), solicitacao.getStatus());
+            return;
+        }
         solicitacao.rejeitar();
         solicitacaoRepository.salvar(solicitacao);
 
