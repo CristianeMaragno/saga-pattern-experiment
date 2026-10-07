@@ -9,9 +9,23 @@
   "templating": {
     "list": [
       {
+        "name": "grupo",
+        "type": "custom",
+        "label": "Grupo pronto de comparação",
+        "query": "Manual (usar o filtro Rodadas) : manual, 1 Estratégias · temporária · T2 · carga 100 : BACKWARD_NONE_T4_100;BACKWARD_TEMPORARY_T2_100;FORWARD_TEMPORARY_T2_100;HYBRID_TEMPORARY_T2_100, 1 Estratégias · temporária · T4 · carga 100 : BACKWARD_NONE_T4_100;BACKWARD_TEMPORARY_T4_100;FORWARD_TEMPORARY_T4_100;HYBRID_TEMPORARY_T4_100, 1 Estratégias · temporária · T6 · carga 100 : BACKWARD_NONE_T4_100;BACKWARD_TEMPORARY_T6_100;FORWARD_TEMPORARY_T6_100;HYBRID_TEMPORARY_T6_100, 1 Estratégias · temporária · T2 · carga 1000 : BACKWARD_NONE_T4_1000;BACKWARD_TEMPORARY_T2_1000;FORWARD_TEMPORARY_T2_1000;HYBRID_TEMPORARY_T2_1000, 1 Estratégias · temporária · T4 · carga 1000 : BACKWARD_NONE_T4_1000;BACKWARD_TEMPORARY_T4_1000;FORWARD_TEMPORARY_T4_1000;HYBRID_TEMPORARY_T4_1000, 1 Estratégias · temporária · T6 · carga 1000 : BACKWARD_NONE_T4_1000;BACKWARD_TEMPORARY_T6_1000;FORWARD_TEMPORARY_T6_1000;HYBRID_TEMPORARY_T6_1000, 2 Estratégias · permanente · T2 · carga 100 : BACKWARD_PERMANENT_T2_100;FORWARD_PERMANENT_T2_100;HYBRID_PERMANENT_T2_100, 2 Estratégias · permanente · T4 · carga 100 : BACKWARD_PERMANENT_T4_100;FORWARD_PERMANENT_T4_100;HYBRID_PERMANENT_T4_100, 2 Estratégias · permanente · T6 · carga 100 : BACKWARD_PERMANENT_T6_100;FORWARD_PERMANENT_T6_100;HYBRID_PERMANENT_T6_100, 2 Estratégias · permanente · T2 · carga 1000 : BACKWARD_PERMANENT_T2_1000;FORWARD_PERMANENT_T2_1000;HYBRID_PERMANENT_T2_1000, 2 Estratégias · permanente · T4 · carga 1000 : BACKWARD_PERMANENT_T4_1000;FORWARD_PERMANENT_T4_1000;HYBRID_PERMANENT_T4_1000, 2 Estratégias · permanente · T6 · carga 1000 : BACKWARD_PERMANENT_T6_1000;FORWARD_PERMANENT_T6_1000;HYBRID_PERMANENT_T6_1000, 3 Posição da falha · BACKWARD · T2 T4 T6 · carga 1000 : BACKWARD_TEMPORARY_T2_1000;BACKWARD_TEMPORARY_T4_1000;BACKWARD_TEMPORARY_T6_1000, 3 Posição da falha · FORWARD · T2 T4 T6 · carga 1000 : FORWARD_TEMPORARY_T2_1000;FORWARD_TEMPORARY_T4_1000;FORWARD_TEMPORARY_T6_1000, 3 Posição da falha · HYBRID · T2 T4 T6 · carga 1000 : HYBRID_TEMPORARY_T2_1000;HYBRID_TEMPORARY_T4_1000;HYBRID_TEMPORARY_T6_1000, 4 Efeito da carga · BACKWARD · T4 · 100 1000 5000 : BACKWARD_TEMPORARY_T4_100;BACKWARD_TEMPORARY_T4_1000;BACKWARD_TEMPORARY_T4_5000, 4 Efeito da carga · FORWARD · T4 · 100 1000 5000 : FORWARD_TEMPORARY_T4_100;FORWARD_TEMPORARY_T4_1000;FORWARD_TEMPORARY_T4_5000, 4 Efeito da carga · HYBRID · T4 · 100 1000 5000 : HYBRID_TEMPORARY_T4_100;HYBRID_TEMPORARY_T4_1000;HYBRID_TEMPORARY_T4_5000, 5 Baseline vs estratégias · T4 · carga 100 : BACKWARD_NONE_T4_100;BACKWARD_TEMPORARY_T4_100;FORWARD_TEMPORARY_T4_100;HYBRID_TEMPORARY_T4_100, 5 Baseline vs estratégias · T4 · carga 1000 : BACKWARD_NONE_T4_1000;BACKWARD_TEMPORARY_T4_1000;FORWARD_TEMPORARY_T4_1000;HYBRID_TEMPORARY_T4_1000, 5 Baseline vs estratégias · T4 · carga 5000 : BACKWARD_NONE_T4_5000;BACKWARD_TEMPORARY_T4_5000;FORWARD_TEMPORARY_T4_5000;HYBRID_TEMPORARY_T4_5000, 6 Temporária vs permanente · BACKWARD · T4 · carga 1000 : BACKWARD_TEMPORARY_T4_1000;BACKWARD_PERMANENT_T4_1000, 6 Temporária vs permanente · FORWARD · T4 · carga 1000 : FORWARD_TEMPORARY_T4_1000;FORWARD_PERMANENT_T4_1000, 6 Temporária vs permanente · HYBRID · T4 · carga 1000 : HYBRID_TEMPORARY_T4_1000;HYBRID_PERMANENT_T4_1000",
+        "current": {
+          "selected": true,
+          "text": "1 Estratégias · temporária · T2 · carga 100",
+          "value": "BACKWARD_NONE_T4_100;BACKWARD_TEMPORARY_T2_100;FORWARD_TEMPORARY_T2_100;HYBRID_TEMPORARY_T2_100"
+        },
+        "options": [],
+        "includeAll": false,
+        "multi": false
+      },
+      {
         "name": "run_ids",
         "type": "query",
-        "label": "Rodadas (run_id) a comparar",
+        "label": "Rodadas (run_id) a comparar — só vale com Grupo = Manual",
         "datasource": { "type": "postgres", "uid": "audit-postgres" },
         "query": "SELECT DISTINCT run_id FROM saga_auditoria ORDER BY run_id DESC",
         "refresh": 1,
@@ -28,7 +42,7 @@
       "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
       "options": {
         "mode": "markdown",
-        "content": "Selecione duas ou mais rodadas em **Rodadas (run_id) a comparar** para ver, lado a lado, as mesmas nove métricas de `saga-metricas-experimento.json` calculadas por rodada. A tabela abaixo resume tudo; os gráficos de barras logo depois comparam cada métrica individualmente entre as rodadas escolhidas."
+        "content": "Escolha um **Grupo pronto de comparação** (ou **Manual** e depois as rodadas em **Rodadas (run_id) a comparar**) para ver, lado a lado, as mesmas nove métricas de `saga-metricas-experimento.json` calculadas por rodada. A tabela abaixo resume tudo; os gráficos de barras logo depois comparam cada métrica individualmente entre as rodadas escolhidas."
       }
     },
     {
@@ -36,145 +50,156 @@
       "title": "Resumo comparativo por rodada",
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 3 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
-      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [] },
+      "fieldConfig": { "defaults": { "decimals": 2 }, "overrides": [
+          { "matcher": { "id": "byName", "options": "Sucesso (%)" }, "properties": [ { "id": "description", "value": "Taxa de sucesso: sagas concluídas / total de sagas" } ] },
+          { "matcher": { "id": "byName", "options": "T. concl. (ms)" }, "properties": [ { "id": "description", "value": "Tempo médio de conclusão — só sagas concluídas com sucesso" } ] },
+          { "matcher": { "id": "byName", "options": "T. recup. (ms)" }, "properties": [ { "id": "description", "value": "Tempo médio de recuperação — da primeira falha ao fim da saga, só sagas que falharam" } ] },
+          { "matcher": { "id": "byName", "options": "Rec. s/ comp. (%)" }, "properties": [ { "id": "description", "value": "Recuperadas sem compensação: das sagas que falharam, % concluídas sem compensar" } ] },
+          { "matcher": { "id": "byName", "options": "Thr. (saga/s)" }, "properties": [ { "id": "description", "value": "Throughput: sagas por segundo entre o primeiro início e o último fim da rodada" } ] },
+          { "matcher": { "id": "byName", "options": "Comp." }, "properties": [ { "id": "description", "value": "Ações compensatórias executadas" } ] },
+          { "matcher": { "id": "byName", "options": "Retries" }, "properties": [ { "id": "description", "value": "Tentativas de recuperação (retries)" } ] },
+          { "matcher": { "id": "byName", "options": "Eventos" }, "properties": [ { "id": "description", "value": "Volume total de eventos de auditoria" } ] },
+          { "matcher": { "id": "byName", "options": "T. médio saga (ms)" }, "properties": [ { "id": "description", "value": "Tempo médio de TODAS as sagas que terminaram (início → evento terminal), qualquer desfecho: concluída, compensada, abortada ou rejeitada. Também é o tempo até consistência eventual" } ] },
+          { "matcher": { "id": "byName", "options": "Duração total (s)" }, "properties": [ { "id": "description", "value": "Tempo global da rodada: do início da primeira saga ao fim da última, qualquer desfecho" } ] }
+        ] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas,\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS compensacoes\n  FROM saga_auditoria\n  WHERE run_id IN (${run_ids:sqlstring})\n  GROUP BY run_id, solicitacao_id\n),\nmetricas AS (\n  SELECT\n    run_id,\n    ROUND(100.0 * SUM(concluida) / NULLIF(COUNT(*), 0), 2) AS \"Taxa de sucesso (%)\",\n    ROUND(AVG(fim - inicio) FILTER (WHERE concluida = 1 AND fim IS NOT NULL), 2) AS \"Tempo médio conclusão (ms)\",\n    ROUND(AVG(fim - primeira_falha) FILTER (WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL), 2) AS \"Tempo médio recuperação (ms)\",\n    ROUND(AVG(fim - inicio) FILTER (WHERE fim IS NOT NULL AND inicio IS NOT NULL), 2) AS \"Tempo até consistência (ms)\",\n    CASE WHEN SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END) > 0\n         THEN ROUND(100.0 * SUM(CASE WHEN falhas > 0 AND concluida = 1 AND compensacoes = 0 THEN 1 ELSE 0 END)::numeric / SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END), 2)\n         ELSE 0 END AS \"Recuperadas sem compensação (%)\",\n    COUNT(*) FILTER (WHERE inicio IS NOT NULL) AS total_sagas,\n    MIN(inicio) FILTER (WHERE inicio IS NOT NULL) AS menor_inicio,\n    MAX(fim) FILTER (WHERE fim IS NOT NULL) AS maior_fim\n  FROM sagas\n  GROUP BY run_id\n),\neventos AS (\n  SELECT run_id,\n    COUNT(*) AS \"Volume de eventos\",\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS \"Compensações\",\n    SUM(CASE WHEN acao = 'RETRY' THEN 1 ELSE 0 END) AS \"Retries\"\n  FROM saga_auditoria\n  WHERE run_id IN (${run_ids:sqlstring})\n  GROUP BY run_id\n)\nSELECT\n  m.run_id AS \"Run\",\n  m.\"Taxa de sucesso (%)\",\n  m.\"Tempo médio conclusão (ms)\",\n  m.\"Tempo médio recuperação (ms)\",\n  m.\"Recuperadas sem compensação (%)\",\n  CASE WHEN m.maior_fim > m.menor_inicio\n       THEN ROUND(m.total_sagas / ((m.maior_fim - m.menor_inicio) / 1000.0), 2)\n       ELSE 0 END AS \"Throughput (ops)\",\n  e.\"Compensações\",\n  e.\"Retries\",\n  e.\"Volume de eventos\",\n  m.\"Tempo até consistência (ms)\"\nFROM metricas m\nJOIN eventos e ON e.run_id = m.run_id\nORDER BY m.run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas,\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS compensacoes\n  FROM saga_auditoria\n  WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END)\n  GROUP BY run_id, solicitacao_id\n),\nmetricas AS (\n  SELECT\n    run_id,\n    ROUND(100.0 * SUM(concluida) / NULLIF(COUNT(*), 0), 2) AS \"Sucesso (%)\",\n    ROUND(AVG(fim - inicio) FILTER (WHERE concluida = 1 AND fim IS NOT NULL), 2) AS \"T. concl. (ms)\",\n    ROUND(AVG(fim - primeira_falha) FILTER (WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL), 2) AS \"T. recup. (ms)\",\n    ROUND(AVG(fim - inicio) FILTER (WHERE fim IS NOT NULL AND inicio IS NOT NULL), 2) AS \"T. médio saga (ms)\",\n    CASE WHEN SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END) > 0\n         THEN ROUND(100.0 * SUM(CASE WHEN falhas > 0 AND concluida = 1 AND compensacoes = 0 THEN 1 ELSE 0 END)::numeric / SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END), 2)\n         ELSE 0 END AS \"Rec. s/ comp. (%)\",\n    COUNT(*) FILTER (WHERE inicio IS NOT NULL) AS total_sagas,\n    MIN(inicio) FILTER (WHERE inicio IS NOT NULL) AS menor_inicio,\n    MAX(fim) FILTER (WHERE fim IS NOT NULL) AS maior_fim\n  FROM sagas\n  GROUP BY run_id\n),\neventos AS (\n  SELECT run_id,\n    COUNT(*) AS \"Eventos\",\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS \"Comp.\",\n    SUM(CASE WHEN acao = 'RETRY' THEN 1 ELSE 0 END) AS \"Retries\"\n  FROM saga_auditoria\n  WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END)\n  GROUP BY run_id\n)\nSELECT\n  m.run_id AS \"Run\",\n  m.\"Sucesso (%)\",\n  m.\"T. concl. (ms)\",\n  m.\"T. recup. (ms)\",\n  m.\"Rec. s/ comp. (%)\",\n  CASE WHEN m.maior_fim > m.menor_inicio\n       THEN ROUND(m.total_sagas / ((m.maior_fim - m.menor_inicio) / 1000.0), 2)\n       ELSE 0 END AS \"Thr. (saga/s)\",\n  e.\"Comp.\",\n  e.\"Retries\",\n  e.\"Eventos\",\n  m.\"T. médio saga (ms)\",\n  CASE WHEN m.maior_fim > m.menor_inicio\n       THEN ROUND((m.maior_fim - m.menor_inicio) / 1000.0, 2)\n       ELSE 0 END AS \"Duração total (s)\"\nFROM metricas m\nJOIN eventos e ON e.run_id = m.run_id\nORDER BY m.run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Taxa de sucesso das sagas por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 11 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 11 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n         MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria\n  WHERE run_id IN (${run_ids:sqlstring})\n  GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(100.0 * SUM(concluida) / NULLIF(COUNT(*), 0), 2) AS \"Taxa de sucesso\"\nFROM sagas GROUP BY run_id ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n         MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria\n  WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END)\n  GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(100.0 * SUM(concluida) / NULLIF(COUNT(*), 0), 2) AS \"Taxa de sucesso\"\nFROM sagas GROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Tempo médio de conclusão por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 11 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 11 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - inicio), 2) AS \"Tempo médio de conclusão\"\nFROM sagas WHERE concluida = 1 AND fim IS NOT NULL GROUP BY run_id ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - inicio), 2) AS \"Tempo médio de conclusão\"\nFROM sagas WHERE concluida = 1 AND fim IS NOT NULL GROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Tempo médio de recuperação após falhas por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 11 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - primeira_falha), 2) AS \"Tempo médio de recuperação\"\nFROM sagas WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL GROUP BY run_id ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim,\n    MIN(CASE WHEN acao = 'FALHA' THEN timestamp_millis END) AS primeira_falha,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - primeira_falha), 2) AS \"Tempo médio de recuperação\"\nFROM sagas WHERE falhas > 0 AND fim IS NOT NULL AND primeira_falha IS NOT NULL GROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Recuperadas sem compensação por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 19 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas,\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS compensacoes\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n),\nagregado AS (\n  SELECT run_id,\n    SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END) AS com_falha,\n    SUM(CASE WHEN falhas > 0 AND concluida = 1 AND compensacoes = 0 THEN 1 ELSE 0 END) AS recuperadas_sem_compensacao\n  FROM sagas GROUP BY run_id\n)\nSELECT run_id, CASE WHEN com_falha > 0 THEN ROUND(100.0 * recuperadas_sem_compensacao / com_falha, 2) ELSE 0 END AS \"% recuperadas sem compensação\"\nFROM agregado ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    SUM(CASE WHEN acao = 'FALHA' THEN 1 ELSE 0 END) AS falhas,\n    SUM(CASE WHEN acao = 'COMPENSACAO' THEN 1 ELSE 0 END) AS compensacoes\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n),\nagregado AS (\n  SELECT run_id,\n    SUM(CASE WHEN falhas > 0 THEN 1 ELSE 0 END) AS com_falha,\n    SUM(CASE WHEN falhas > 0 AND concluida = 1 AND compensacoes = 0 THEN 1 ELSE 0 END) AS recuperadas_sem_compensacao\n  FROM sagas GROUP BY run_id\n)\nSELECT run_id, CASE WHEN com_falha > 0 THEN ROUND(100.0 * recuperadas_sem_compensacao / com_falha, 2) ELSE 0 END AS \"% recuperadas sem compensação\"\nFROM agregado ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Throughput do sistema por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 19 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "ops", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n),\nagregado AS (\n  SELECT run_id, COUNT(*) AS total, MIN(inicio) AS menor_inicio, MAX(fim) AS maior_fim\n  FROM sagas WHERE inicio IS NOT NULL GROUP BY run_id\n)\nSELECT run_id, CASE WHEN maior_fim > menor_inicio\n            THEN ROUND(total / ((maior_fim - menor_inicio) / 1000.0), 2)\n            ELSE 0 END AS \"Throughput\"\nFROM agregado ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n),\nagregado AS (\n  SELECT run_id, COUNT(*) AS total, MIN(inicio) AS menor_inicio, MAX(fim) AS maior_fim\n  FROM sagas WHERE inicio IS NOT NULL GROUP BY run_id\n)\nSELECT run_id, CASE WHEN maior_fim > menor_inicio\n            THEN ROUND(total / ((maior_fim - menor_inicio) / 1000.0), 2)\n            ELSE 0 END AS \"Throughput\"\nFROM agregado ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Tempo até consistência eventual por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 19 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - inicio), 2) AS \"Tempo até consistência eventual\"\nFROM sagas WHERE fim IS NOT NULL AND inicio IS NOT NULL GROUP BY run_id ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MIN(CASE WHEN acao = 'SAGA_INICIADA' THEN timestamp_millis END) AS inicio,\n    MAX(CASE WHEN acao IN ('SAGA_CONCLUIDA','SAGA_COMPENSADA','SAGA_ABORTADA','SAGA_REJEITADA') THEN timestamp_millis END) AS fim\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id, ROUND(AVG(fim - inicio), 2) AS \"Tempo até consistência eventual\"\nFROM sagas WHERE fim IS NOT NULL AND inicio IS NOT NULL GROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Ações compensatórias executadas por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 27 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT run_id, COUNT(*) AS \"Compensações\"\nFROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) AND acao = 'COMPENSACAO'\nGROUP BY run_id ORDER BY run_id;"
+          "rawSql": "SELECT run_id, COUNT(*) AS \"Compensações\"\nFROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) AND acao = 'COMPENSACAO'\nGROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Tentativas de recuperação (retries) por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 27 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT run_id, COUNT(*) AS \"Retries\"\nFROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) AND acao = 'RETRY'\nGROUP BY run_id ORDER BY run_id;"
+          "rawSql": "SELECT run_id, COUNT(*) AS \"Retries\"\nFROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) AND acao = 'RETRY'\nGROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Volume total de eventos por rodada",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 27 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 43 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT run_id, COUNT(*) AS \"Eventos registrados\"\nFROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring})\nGROUP BY run_id ORDER BY run_id;"
+          "rawSql": "SELECT run_id, COUNT(*) AS \"Eventos registrados\"\nFROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END)\nGROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Sagas por resultado e rodada",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 43 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "options": { "orientation": "horizontal" },
@@ -182,14 +207,14 @@
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    MAX(CASE WHEN acao = 'SAGA_COMPENSADA' THEN 1 ELSE 0 END) AS compensada,\n    MAX(CASE WHEN acao = 'SAGA_ABORTADA' THEN 1 ELSE 0 END) AS abortada,\n    MAX(CASE WHEN acao = 'SAGA_REJEITADA' THEN 1 ELSE 0 END) AS rejeitada\n  FROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring}) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id,\n  SUM(concluida)::int AS \"Concluída\",\n  SUM(compensada)::int AS \"Compensada\",\n  SUM(abortada)::int AS \"Abortada\",\n  SUM(rejeitada)::int AS \"Rejeitada\",\n  SUM(CASE WHEN concluida = 0 AND compensada = 0 AND abortada = 0 AND rejeitada = 0 THEN 1 ELSE 0 END)::int AS \"Em andamento\"\nFROM sagas GROUP BY run_id ORDER BY run_id;"
+          "rawSql": "WITH sagas AS (\n  SELECT run_id, solicitacao_id,\n    MAX(CASE WHEN acao = 'SAGA_CONCLUIDA' THEN 1 ELSE 0 END) AS concluida,\n    MAX(CASE WHEN acao = 'SAGA_COMPENSADA' THEN 1 ELSE 0 END) AS compensada,\n    MAX(CASE WHEN acao = 'SAGA_ABORTADA' THEN 1 ELSE 0 END) AS abortada,\n    MAX(CASE WHEN acao = 'SAGA_REJEITADA' THEN 1 ELSE 0 END) AS rejeitada\n  FROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END) GROUP BY run_id, solicitacao_id\n)\nSELECT run_id,\n  SUM(concluida)::int AS \"Concluída\",\n  SUM(compensada)::int AS \"Compensada\",\n  SUM(abortada)::int AS \"Abortada\",\n  SUM(rejeitada)::int AS \"Rejeitada\",\n  SUM(CASE WHEN concluida = 0 AND compensada = 0 AND abortada = 0 AND rejeitada = 0 THEN 1 ELSE 0 END)::int AS \"Em andamento\"\nFROM sagas GROUP BY run_id ORDER BY run_id;"
         }
       ]
     },
     {
       "type": "barchart",
       "title": "Eventos registrados por serviço e rodada",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 51 },
       "datasource": { "type": "postgres", "uid": "audit-postgres" },
       "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
       "options": { "orientation": "horizontal" },
@@ -207,7 +232,7 @@
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT run_id, servico, COUNT(*)::int AS eventos\nFROM saga_auditoria WHERE run_id IN (${run_ids:sqlstring})\nGROUP BY run_id, servico ORDER BY run_id, servico;"
+          "rawSql": "SELECT run_id, servico, COUNT(*)::int AS eventos\nFROM saga_auditoria WHERE run_id = ANY(CASE WHEN '${grupo}' = 'manual' THEN ARRAY[${run_ids:sqlstring}]::text[] ELSE string_to_array('${grupo}', ';') END)\nGROUP BY run_id, servico ORDER BY run_id, servico;"
         }
       ]
     }
